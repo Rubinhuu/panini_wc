@@ -132,7 +132,8 @@
   .tline{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line)}
   .tline input{background:#06120c;border:1px solid var(--line);color:var(--ink);border-radius:9px;
     padding:9px;font-family:'Manrope';font-weight:700;font-size:14px;min-width:0}
-  .in-code{width:74px;text-align:center;text-transform:uppercase}
+  .in-flag{width:46px;text-align:center;font-size:19px;padding:9px 2px}
+  .in-code{width:62px;text-align:center;text-transform:uppercase}
   .in-name{flex:1}
   .in-num{width:54px;text-align:center}
   .del{background:rgba(230,0,126,.15);color:var(--magenta);border:none;border-radius:9px;
@@ -206,7 +207,7 @@
   <div class="sheet">
     <div class="grab"></div>
     <h2>Mes équipes</h2>
-    <div class="hint">Vérifie les <b>codes</b> et le <b>nombre de stickers</b> de chaque équipe d'après ton album (les codes peuvent varier). Ajoute les équipes manquantes. Les stickers déjà pointés sont conservés.</div>
+    <div class="hint">La 1ʳᵉ case = l'emoji (colle le drapeau ou un symbole de ton choix). Vérifie aussi les <b>codes</b> et le <b>nombre de stickers</b> d'après ton album (les codes peuvent varier), et ajoute les équipes manquantes. Les stickers déjà pointés sont conservés.</div>
     <div id="teamEditor"></div>
     <button class="add" id="btnAddTeam">+ Ajouter une équipe / section</button>
     <h2 style="margin-top:22px">Sauvegarde</h2>
@@ -407,11 +408,13 @@ function renderEditor(){
   draft.forEach((t,i)=>{
     const row=document.createElement('div');row.className='tline';
     row.innerHTML=`
+      <input class="in-flag" value="${t.flag||''}" placeholder="⚽">
       <input class="in-code" value="${t.code}" maxlength="5">
       <input class="in-name" value="${t.name}">
       <input class="in-num" type="number" min="1" value="${t.count}">
       <button class="del">×</button>`;
-    const[code,name,num]=row.querySelectorAll('input');
+    const[flag,code,name,num]=row.querySelectorAll('input');
+    flag.oninput=e=>t.flag=e.target.value.trim();
     code.oninput=e=>t.code=e.target.value.toUpperCase().replace(/\s/g,'');
     name.oninput=e=>t.name=e.target.value;
     num.oninput=e=>t.count=Math.max(1,parseInt(e.target.value)||1);
