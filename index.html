@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0b1f17">
+<title>Mon Album · WC 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08160f;
+    --bg2:#0b2117;
+    --pitch:#0e2a1d;
+    --line:rgba(255,255,255,.08);
+    --ink:#f3f7f4;
+    --muted:#8aa597;
+    --magenta:#e6007e;
+    --magenta-d:#b3005f;
+    --gold:#ffc83d;
+    --green:#16c172;
+    --green-d:#0e8a50;
+    --grey:#27433a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Manrope',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 80% at 50% -10%, #133a28 0%, transparent 55%),
+      radial-gradient(100% 60% at 100% 0%, rgba(230,0,126,.18) 0%, transparent 50%),
+      linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:96px;
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:0 14px}
+
+  /* HEADER */
+  header{padding:22px 0 8px;position:relative}
+  .kicker{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:800}
+  h1{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(34px,11vw,52px);line-height:.92;
+    margin:4px 0 2px;text-transform:uppercase;letter-spacing:.5px;
+    text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  h1 .m{color:var(--magenta)}
+  .sub{color:var(--muted);font-size:13px;font-weight:500}
+
+  /* PROGRESS */
+  .progress-card{
+    margin-top:16px;border:1px solid var(--line);border-radius:20px;padding:16px 16px 14px;
+    background:linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    backdrop-filter:blur(6px);
+  }
+  .pct{font-family:'Anton',sans-serif;font-size:42px;line-height:1;letter-spacing:1px}
+  .pct small{font-family:'Manrope';font-size:13px;color:var(--muted);font-weight:600;margin-left:6px}
+  .bar{height:12px;border-radius:8px;background:var(--grey);overflow:hidden;margin:12px 0 14px;position:relative}
+  .bar>i{display:block;height:100%;border-radius:8px;
+    background:linear-gradient(90deg,var(--green),var(--gold));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat{text-align:center;border-radius:14px;padding:9px 4px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+  .stat b{display:block;font-family:'Anton';font-size:24px;line-height:1}
+  .stat span{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .stat.have b{color:var(--green)}
+  .stat.dup b{color:var(--gold)}
+  .stat.miss b{color:var(--magenta)}
+
+  /* FILTERS */
+  .filters{display:flex;gap:8px;margin:18px 0 8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .chip-f{flex:0 0 auto;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
+    border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+  .chip-f.active{background:var(--ink);color:#08160f;border-color:var(--ink)}
+
+  /* TEAM */
+  .team{border:1px solid var(--line);border-radius:18px;margin-bottom:10px;overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.008))}
+  .team-head{display:flex;align-items:center;gap:11px;padding:13px 14px;cursor:pointer;user-select:none}
+  .flag{font-size:22px;width:26px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+  .t-name{font-weight:800;font-size:15px;flex:1;min-width:0}
+  .t-name small{display:block;color:var(--muted);font-weight:700;font-size:11px;letter-spacing:.1em;margin-top:1px}
+  .t-prog{font-size:12px;font-weight:800;color:var(--muted);background:rgba(0,0,0,.25);
+    padding:4px 9px;border-radius:999px;white-space:nowrap}
+  .t-prog.done{color:#08160f;background:var(--green)}
+  .caret{transition:.25s;color:var(--muted);font-size:18px}
+  .team.open .caret{transform:rotate(90deg)}
+  .grid{display:none;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:7px;padding:4px 12px 14px}
+  .team.open .grid{display:grid}
+
+  /* STICKER CHIP */
+  .s{position:relative;border:1px solid var(--grey);background:rgba(255,255,255,.02);color:var(--muted);
+    border-radius:11px;padding:10px 2px 8px;text-align:center;font-weight:800;font-size:12px;cursor:pointer;
+    transition:transform .08s, background .15s, border-color .15s;user-select:none;line-height:1.1}
+  .s:active{transform:scale(.9)}
+  .s .n{font-size:13px}
+  .s .tag{display:block;font-size:9.5px;font-weight:800;margin-top:3px;min-height:11px;letter-spacing:.04em}
+  .s.have{background:linear-gradient(180deg,var(--green),var(--green-d));border-color:var(--green);color:#fff}
+  .s.have .tag{color:rgba(255,255,255,.85)}
+  .s.dup{background:linear-gradient(180deg,var(--gold),#e0a800);border-color:var(--gold);color:#3a2a00}
+  .s.dup .tag{color:#5a4200}
+
+  /* FAB / EXPORT BAR */
+  .dock{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg, var(--bg) 55%, transparent);z-index:30}
+  .dock .wrap{display:flex;gap:10px}
+  .btn{flex:1;border:none;border-radius:15px;padding:15px;font-family:'Manrope';font-weight:800;font-size:15px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.12s}
+  .btn:active{transform:translateY(2px)}
+  .btn-main{background:linear-gradient(135deg,var(--magenta),var(--magenta-d));color:#fff;
+    box-shadow:0 6px 20px rgba(230,0,126,.35)}
+  .btn-ghost{flex:0 0 auto;background:rgba(255,255,255,.07);color:var(--ink);border:1px solid var(--line);width:54px}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;background:rgba(3,10,7,.7);backdrop-filter:blur(4px);z-index:50;
+    display:none;align-items:flex-end;justify-content:center}
+  .modal.show{display:flex}
+  .sheet{background:linear-gradient(180deg,#0e2419,#0a1a12);width:100%;max-width:680px;
+    border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:none;
+    max-height:88vh;overflow:auto;padding:8px 16px calc(20px + env(safe-area-inset-bottom))}
+  .grab{width:44px;height:5px;border-radius:9px;background:var(--grey);margin:8px auto 14px}
+  .sheet h2{font-family:'Anton';font-weight:400;text-transform:uppercase;letter-spacing:1px;font-size:22px;margin:4px 0 12px}
+  .export-box{white-space:pre-wrap;background:#06120c;border:1px solid var(--line);border-radius:14px;
+    padding:14px;font-size:13px;line-height:1.5;color:#cfe;max-height:40vh;overflow:auto;font-weight:500}
+  .row{display:flex;gap:9px;margin-top:12px}
+  .mini{flex:1;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);
+    border-radius:13px;padding:13px;font-weight:800;font-size:14px;cursor:pointer}
+  .mini.go{background:var(--green);color:#06170d;border-color:var(--green)}
+
+  /* SETTINGS list */
+  .tline{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .tline input{background:#06120c;border:1px solid var(--line);color:var(--ink);border-radius:9px;
+    padding:9px;font-family:'Manrope';font-weight:700;font-size:14px;min-width:0}
+  .in-code{width:74px;text-align:center;text-transform:uppercase}
+  .in-name{flex:1}
+  .in-num{width:54px;text-align:center}
+  .del{background:rgba(230,0,126,.15);color:var(--magenta);border:none;border-radius:9px;
+    width:36px;height:36px;font-size:18px;font-weight:800;cursor:pointer;flex:0 0 auto}
+  .add{width:100%;margin-top:14px;border:1px dashed var(--muted);background:transparent;color:var(--ink);
+    border-radius:13px;padding:13px;font-weight:800;cursor:pointer}
+  .hint{color:var(--muted);font-size:12.5px;line-height:1.5;margin:10px 0 2px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;font-weight:700;margin:2px 0 14px}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:5px;vertical-align:-1px}
+  .toast{position:fixed;bottom:104px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;
+    background:var(--ink);color:#08160f;padding:11px 20px;border-radius:999px;font-weight:800;font-size:14px;
+    z-index:60;transition:.25s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Coupe du Monde · 2026</div>
+    <h1>Mon <span class="m">Album</span></h1>
+    <div class="sub">Suivi des stickers Panini · got · got · need</div>
+
+    <div class="progress-card">
+      <div class="pct"><span id="pctNum">0%</span><small id="pctTxt">0 / 0 collés</small></div>
+      <div class="bar"><i id="barFill" style="width:0%"></i></div>
+      <div class="stats">
+        <div class="stat have"><b id="sHave">0</b><span>Collés</span></div>
+        <div class="stat miss"><b id="sMiss">0</b><span>Manquants</span></div>
+        <div class="stat dup"><b id="sDup">0</b><span>Doubles</span></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><i class="dot" style="background:var(--grey)"></i>Manquant</span>
+      <span><i class="dot" style="background:var(--green)"></i>J'ai</span>
+      <span><i class="dot" style="background:var(--gold)"></i>Double (×N)</span>
+    </div>
+  </header>
+
+  <div class="filters" id="filters">
+    <button class="chip-f active" data-f="all">Tout</button>
+    <button class="chip-f" data-f="miss">Manquants</button>
+    <button class="chip-f" data-f="dup">Doubles</button>
+  </div>
+
+  <div id="teams"></div>
+</div>
+
+<div class="dock"><div class="wrap">
+  <button class="btn btn-main" id="btnExport">📤 Échanger (export)</button>
+  <button class="btn btn-ghost" id="btnSettings">⚙️</button>
+</div></div>
+
+<!-- EXPORT MODAL -->
+<div class="modal" id="exportModal">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2>À échanger</h2>
+    <div class="hint">Touche tient ta liste de doubles et de manquants. Copie-la ou partage-la directement (WhatsApp, SMS…).</div>
+    <div class="export-box" id="exportText"></div>
+    <div class="row">
+      <button class="mini" id="btnCopy">📋 Copier</button>
+      <button class="mini go" id="btnShare">📲 Partager</button>
+    </div>
+    <div class="row"><button class="mini" id="btnCloseExport">Fermer</button></div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="settingsModal">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2>Mes équipes</h2>
+    <div class="hint">Vérifie les <b>codes</b> et le <b>nombre de stickers</b> de chaque équipe d'après ton album (les codes peuvent varier). Ajoute les équipes manquantes. Les stickers déjà pointés sont conservés.</div>
+    <div id="teamEditor"></div>
+    <button class="add" id="btnAddTeam">+ Ajouter une équipe / section</button>
+    <h2 style="margin-top:22px">Sauvegarde</h2>
+    <div class="hint">Tes données restent dans ce téléphone. Pense à copier une sauvegarde de temps en temps.</div>
+    <div class="row">
+      <button class="mini" id="btnBackup">⬇️ Copier sauvegarde</button>
+      <button class="mini" id="btnRestore">⬆️ Restaurer</button>
+    </div>
+    <div class="row"><button class="mini go" id="btnSaveTeams">Enregistrer & fermer</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='panini_wc2026_v1';
+
+const DEFAULT_TEAMS=[
+  // Hôtes
+  {code:'USA',name:'États-Unis',flag:'🇺🇸',count:20},
+  {code:'MEX',name:'Mexique',flag:'🇲🇽',count:20},
+  {code:'CAN',name:'Canada',flag:'🇨🇦',count:20},
+  // UEFA
+  {code:'FRA',name:'France',flag:'🇫🇷',count:20},
+  {code:'ESP',name:'Espagne',flag:'🇪🇸',count:20},
+  {code:'ENG',name:'Angleterre',flag:'🏴',count:20},
+  {code:'PRT',name:'Portugal',flag:'🇵🇹',count:20},
+  {code:'GER',name:'Allemagne',flag:'🇩🇪',count:20},
+  {code:'NED',name:'Pays-Bas',flag:'🇳🇱',count:20},
+  {code:'CRO',name:'Croatie',flag:'🇭🇷',count:20},
+  {code:'BEL',name:'Belgique',flag:'🇧🇪',count:20},
+  {code:'SUI',name:'Suisse',flag:'🇨🇭',count:20},
+  {code:'AUT',name:'Autriche',flag:'🇦🇹',count:20},
+  {code:'NOR',name:'Norvège',flag:'🇳🇴',count:20},
+  {code:'SCO',name:'Écosse',flag:'🏴',count:20},
+  {code:'SWE',name:'Suède',flag:'🇸🇪',count:20},
+  {code:'CZE',name:'Tchéquie',flag:'🇨🇿',count:20},
+  {code:'TUR',name:'Türkiye',flag:'🇹🇷',count:20},
+  {code:'BIH',name:'Bosnie-Herz.',flag:'🇧🇦',count:20},
+  // CONMEBOL
+  {code:'ARG',name:'Argentine',flag:'🇦🇷',count:20},
+  {code:'BRA',name:'Brésil',flag:'🇧🇷',count:20},
+  // AFC
+  {code:'JPN',name:'Japon',flag:'🇯🇵',count:20},
+  {code:'KSA',name:'Arabie S.',flag:'🇸🇦',count:20},
+  {code:'QAT',name:'Qatar',flag:'🇶🇦',count:20},
+  {code:'IRQ',name:'Irak',flag:'🇮🇶',count:20},
+  {code:'JOR',name:'Jordanie',flag:'🇯🇴',count:20},
+  // CAF
+  {code:'MAR',name:'Maroc',flag:'🇲🇦',count:20},
+  {code:'ALG',name:'Algérie',flag:'🇩🇿',count:20},
+  {code:'EGY',name:'Égypte',flag:'🇪🇬',count:20},
+  {code:'TUN',name:'Tunisie',flag:'🇹🇳',count:20},
+  {code:'RSA',name:'Afrique du Sud',flag:'🇿🇦',count:20},
+  {code:'COD',name:'RD Congo',flag:'🇨🇩',count:20},
+  {code:'CPV',name:'Cap-Vert',flag:'🇨🇻',count:20},
+  // OFC
+  {code:'NZL',name:'Nouv.-Zélande',flag:'🇳🇿',count:20},
+  // Spéciaux
+  {code:'WC',name:'Spéciaux WC',flag:'⭐',count:68},
+];
+
+let state=load();
+let filter='all';
+
+function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw)return JSON.parse(raw);}catch(e){}
+  return {teams:DEFAULT_TEAMS.map(t=>({...t})), stickers:{}};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('⚠️ Sauvegarde impossible ici');}}
+
+const owned=c=>state.stickers[c]||0;
+function setOwned(c,n){ n=Math.max(0,n); if(n===0) delete state.stickers[c]; else state.stickers[c]=n; }
+
+function codesOf(t){const a=[];for(let i=1;i<=t.count;i++)a.push(t.code+i);return a;}
+function allCodes(){return state.teams.flatMap(codesOf);}
+
+/* ---- STATS ---- */
+function computeStats(){
+  let total=0,have=0,dup=0;
+  for(const t of state.teams){
+    total+=t.count;
+    for(const c of codesOf(t)){const n=owned(c);if(n>0)have++;if(n>1)dup+=n-1;}
+  }
+  return {total,have,dup,miss:total-have,pct:total?Math.round(have/total*100):0};
+}
+function renderStats(){
+  const s=computeStats();
+  pctNum.textContent=s.pct+'%';
+  pctTxt.textContent=s.have+' / '+s.total+' collés';
+  barFill.style.width=s.pct+'%';
+  sHave.textContent=s.have; sMiss.textContent=s.miss; sDup.textContent=s.dup;
+}
+
+/* ---- TEAMS ---- */
+function teamProgress(t){let h=0;for(const c of codesOf(t))if(owned(c)>0)h++;return h;}
+function chipVisible(c){const n=owned(c);if(filter==='miss')return n===0;if(filter==='dup')return n>1;return true;}
+
+function renderTeams(){
+  const openSet=new Set([...document.querySelectorAll('.team.open')].map(e=>e.dataset.code));
+  teams.innerHTML='';
+  for(const t of state.teams){
+    const codes=codesOf(t);
+    const visCodes=codes.filter(chipVisible);
+    if(filter!=='all' && visCodes.length===0) continue;
+    const h=teamProgress(t), done=h===t.count;
+    const el=document.createElement('div');
+    el.className='team'+(openSet.has(t.code)||filter!=='all'?' open':'');
+    el.dataset.code=t.code;
+    el.innerHTML=`
+      <div class="team-head">
+        <span class="flag">${t.flag||'⚽'}</span>
+        <span class="t-name">${t.name}<small>${t.code}</small></span>
+        <span class="t-prog ${done?'done':''}">${h}/${t.count}</span>
+        <span class="caret">▸</span>
+      </div>
+      <div class="grid">
+        ${visCodes.map(c=>chipHTML(c,t.code)).join('')}
+      </div>`;
+    el.querySelector('.team-head').onclick=()=>el.classList.toggle('open');
+    teams.appendChild(el);
+  }
+  bindChips();
+}
+function chipHTML(c,code){
+  const n=owned(c), num=c.slice(code.length);
+  const cls=n>1?'dup':(n===1?'have':'');
+  const tag=n>1?('×'+n):(n===1?'✓':'');
+  return `<div class="s ${cls}" data-c="${c}"><span class="n">${num}</span><span class="tag">${tag}</span></div>`;
+}
+
+/* ---- CHIP INTERACTION : tap = +1 (manquant→j'ai→doubles) · appui long = remise à 0 ---- */
+function bindChips(){
+  document.querySelectorAll('.s').forEach(el=>{
+    let timer=null,long=false;
+    const c=el.dataset.c;
+    const start=()=>{long=false;timer=setTimeout(()=>{long=true;setOwned(c,0);refreshChip(el,c);buzz();},480);};
+    const end=()=>{clearTimeout(timer);};
+    el.addEventListener('pointerdown',start);
+    el.addEventListener('pointerup',end);
+    el.addEventListener('pointerleave',end);
+    el.addEventListener('click',()=>{ if(long){long=false;return;} setOwned(c,owned(c)+1); refreshChip(el,c); });
+  });
+}
+function refreshChip(el,c){
+  const code=el.closest('.team').dataset.code;
+  const n=owned(c), num=c.slice(code.length);
+  el.className='s '+(n>1?'dup':(n===1?'have':''));
+  el.querySelector('.n').textContent=num;
+  el.querySelector('.tag').textContent=n>1?('×'+n):(n===1?'✓':'');
+  // update team counter + global stats live
+  const teamEl=el.closest('.team');
+  const t=state.teams.find(x=>x.code===code);
+  const h=teamProgress(t), prog=teamEl.querySelector('.t-prog');
+  prog.textContent=h+'/'+t.count; prog.classList.toggle('done',h===t.count);
+  renderStats(); save();
+  if(filter!=='all') refreshFilteredSoon();
+}
+let ft=null;
+function refreshFilteredSoon(){clearTimeout(ft);ft=setTimeout(renderTeams,650);}
+function buzz(){if(navigator.vibrate)navigator.vibrate(18);}
+
+/* ---- FILTERS ---- */
+filters.querySelectorAll('.chip-f').forEach(b=>b.onclick=()=>{
+  filters.querySelectorAll('.chip-f').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); filter=b.dataset.f; renderTeams();
+});
+
+/* ---- EXPORT ---- */
+function buildExport(){
+  const s=computeStats();
+  const dups=[],miss=[];
+  for(const t of state.teams){
+    for(const c of codesOf(t)){
+      const n=owned(c);
+      if(n>1) dups.push(c+(n>2?(' ×'+(n-1)):''));
+      if(n===0) miss.push(c);
+    }
+  }
+  let txt=`🏆 Mon album Panini · WC 2026\n✅ ${s.have}/${s.total} collés (${s.pct}%)\n`;
+  txt+=`\n🔁 DOUBLES À ÉCHANGER (${dups.length}) :\n`+(dups.length?dups.join(', '):'— aucun —');
+  txt+=`\n\n❌ MANQUANTS (${miss.length}) :\n`+(miss.length?miss.join(', '):'— aucun, album complet ! —');
+  return txt;
+}
+btnExport.onclick=()=>{exportText.textContent=buildExport();openModal(exportModal);};
+btnCloseExport.onclick=()=>closeModal(exportModal);
+btnCopy.onclick=async()=>{try{await navigator.clipboard.writeText(exportText.textContent);toast('Copié ✓');}catch(e){toast('Sélectionne et copie le texte');}};
+btnShare.onclick=async()=>{
+  if(navigator.share){try{await navigator.share({text:exportText.textContent});}catch(e){}}
+  else{try{await navigator.clipboard.writeText(exportText.textContent);toast('Copié ✓ (partage indispo)');}catch(e){toast('Partage indisponible');}}
+};
+
+/* ---- SETTINGS / TEAM EDITOR ---- */
+let draft=[];
+btnSettings.onclick=()=>{draft=state.teams.map(t=>({...t}));renderEditor();openModal(settingsModal);};
+function renderEditor(){
+  teamEditor.innerHTML='';
+  draft.forEach((t,i)=>{
+    const row=document.createElement('div');row.className='tline';
+    row.innerHTML=`
+      <input class="in-code" value="${t.code}" maxlength="5">
+      <input class="in-name" value="${t.name}">
+      <input class="in-num" type="number" min="1" value="${t.count}">
+      <button class="del">×</button>`;
+    const[code,name,num]=row.querySelectorAll('input');
+    code.oninput=e=>t.code=e.target.value.toUpperCase().replace(/\s/g,'');
+    name.oninput=e=>t.name=e.target.value;
+    num.oninput=e=>t.count=Math.max(1,parseInt(e.target.value)||1);
+    row.querySelector('.del').onclick=()=>{draft.splice(i,1);renderEditor();};
+    teamEditor.appendChild(row);
+  });
+}
+btnAddTeam.onclick=()=>{draft.push({code:'NEW',name:'Nouvelle équipe',flag:'⚽',count:20});renderEditor();
+  teamEditor.lastChild.scrollIntoView({behavior:'smooth'});};
+btnSaveTeams.onclick=()=>{
+  const seen=new Set();
+  for(const t of draft){if(!t.code){toast('Un code est vide');return;}if(seen.has(t.code)){toast('Code en double : '+t.code);return;}seen.add(t.code);}
+  state.teams=draft.map(t=>({...t,flag:t.flag||'⚽'}));
+  // purge stickers belonging to deleted teams/out-of-range
+  const valid=new Set(allCodes());
+  for(const k of Object.keys(state.stickers))if(!valid.has(k))delete state.stickers[k];
+  save();renderAll();closeModal(settingsModal);toast('Équipes enregistrées ✓');
+};
+
+/* ---- BACKUP ---- */
+btnBackup.onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(state));toast('Sauvegarde copiée ✓');}catch(e){toast('Copie impossible');}};
+btnRestore.onclick=async()=>{
+  const txt=prompt('Colle ici une sauvegarde précédente :');
+  if(!txt)return;
+  try{const d=JSON.parse(txt);if(d.teams&&d.stickers){state=d;save();renderAll();closeModal(settingsModal);toast('Restauré ✓');}else toast('Format invalide');}
+  catch(e){toast('Sauvegarde illisible');}
+};
+
+/* ---- MODAL HELPERS ---- */
+function openModal(m){m.classList.add('show');}
+function closeModal(m){m.classList.remove('show');}
+[exportModal,settingsModal].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m);}));
+
+/* ---- TOAST ---- */
+let tt=null;
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),1800);}
+
+/* ---- INIT ---- */
+function renderAll(){renderStats();renderTeams();}
+renderAll();
+</script>
+</body>
+</html>
